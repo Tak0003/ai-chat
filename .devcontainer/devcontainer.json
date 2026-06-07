@@ -1,0 +1,12 @@
+{
+  "name": "ai-chat",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "mounts": [
+    "source=claude-creds,target=/root/.claude,type=volume"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/ai-chat,type=bind",
+  "workspaceFolder": "/ai-chat"
+}
