@@ -1,0 +1,10 @@
+.git
+.env*
+.devcontainer
+node_modules
+README.md
+TODO.md
+CLAUDE.md
+AGENTS.md
+get-pip.py
+.next/cache
