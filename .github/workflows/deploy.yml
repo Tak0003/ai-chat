@@ -1,0 +1,67 @@
+name: Deploy to AWS Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: コードをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 依存パッケージインストール
+        run: npm ci
+
+      - name: ビルド
+        run: npm run build
+
+      - name: 静的ファイルをコピー
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: シークレット設定ファイルを生成
+        run: |
+          cat > .ebextensions/secrets.config << 'YAML_EOF'
+          option_settings:
+            aws:elasticbeanstalk:application:environment:
+          YAML_EOF
+          echo "    ANTHROPIC_API_KEY: \"$ANTHROPIC_API_KEY\"" >> .ebextensions/secrets.config
+          echo "    VOYAGE_API_KEY: \"$VOYAGE_API_KEY\""       >> .ebextensions/secrets.config
+          echo "    MONGODB_URI: \"$MONGODB_URI\""             >> .ebextensions/secrets.config
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: デプロイ ZIP 作成
+        run: |
+          zip -r deploy.zip \
+            Procfile \
+            .ebextensions \
+            .next/standalone
+
+      - name: ZIP サイズ確認
+        run: du -sh deploy.zip
+
+      - name: Elastic Beanstalk にデプロイ
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ai-chat
+          environment_name: ai-chat-env
+          region: ap-northeast-1
+          version_label: ${{ github.sha }}
+          deployment_package: deploy.zip

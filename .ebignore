@@ -1,10 +1,47 @@
-.git
+# Secrets & local config
 .env*
-.devcontainer
-node_modules
+/.ebextensions/secrets.config
+
+# Dev tooling
+.git
+/.devcontainer
+/.claude
+
+# Docs
 README.md
 TODO.md
 CLAUDE.md
 AGENTS.md
 get-pip.py
-.next/cache
+
+# Source code (all bundled into .next/standalone)
+/app
+/components
+/lib
+/types
+/public
+/package.json
+/package-lock.json
+/tsconfig.json
+/next.config.ts
+/postcss.config.mjs
+/eslint.config.mjs
+/components.json
+/.gitignore
+/.dockerignore
+
+# Root-level node_modules only (standalone has its own)
+/node_modules
+
+# Exclude all .next/* EXCEPT .next/standalone
+/.next/cache
+/.next/server
+/.next/static
+/.next/build
+/.next/dev
+/.next/types
+/.next/diagnostics
+/.next/node_modules
+
+# EB local version cache
+/.elasticbeanstalk/app_versions

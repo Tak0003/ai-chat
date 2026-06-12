@@ -44,3 +44,6 @@ next-env.d.ts
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# GitHub Actions で動的生成されるファイル（コミット不要）
+.ebextensions/secrets.config
