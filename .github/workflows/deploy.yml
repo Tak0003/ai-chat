@@ -32,18 +32,21 @@ jobs:
           cp -r public .next/standalone/public
 
       - name: シークレット設定ファイルを生成
-        run: |
-          cat > .ebextensions/secrets.config << 'YAML_EOF'
-          option_settings:
-            aws:elasticbeanstalk:application:environment:
-          YAML_EOF
-          echo "    ANTHROPIC_API_KEY: \"$ANTHROPIC_API_KEY\"" >> .ebextensions/secrets.config
-          echo "    VOYAGE_API_KEY: \"$VOYAGE_API_KEY\""       >> .ebextensions/secrets.config
-          echo "    MONGODB_URI: \"$MONGODB_URI\""             >> .ebextensions/secrets.config
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          {
+            echo 'option_settings:'
+            echo '  aws:elasticbeanstalk:application:environment:'
+            echo "    ANTHROPIC_API_KEY: \"${ANTHROPIC_API_KEY}\""
+            echo "    VOYAGE_API_KEY: \"${VOYAGE_API_KEY}\""
+            echo "    MONGODB_URI: \"${MONGODB_URI}\""
+          } > .ebextensions/secrets.config
+
+      - name: secrets.config 構造を確認（シークレット値はマスク済み）
+        run: cat .ebextensions/secrets.config
 
       - name: デプロイ ZIP 作成
         run: |
